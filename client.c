@@ -10,14 +10,14 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#define PORT "3490"
+#define PORT "80"
 #define MAXDATASIZE 100
 
 int main(int argc, char const *argv[])
 {
-    if(argc != 2)
+    if(argc != 3)
     {
-        fprintf(stderr, "usage: client hostname\n");
+        fprintf(stderr, "usage: client hostname port\n");
         exit(1);
     }
     struct addrinfo hints;
@@ -26,7 +26,7 @@ int main(int argc, char const *argv[])
     hints.ai_socktype = SOCK_STREAM;
     int rv;
     struct addrinfo *serv_info;
-    if ((rv = getaddrinfo(argv[1], PORT, &hints, &serv_info)) != 0)
+    if ((rv = getaddrinfo(argv[1], argv[2], &hints, &serv_info)) != 0)
     {
         printf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
@@ -65,14 +65,24 @@ int main(int argc, char const *argv[])
     freeaddrinfo(serv_info);
 
     int numbytes;
+    char * content = "hello, this is pipi!";
+    if((numbytes = send(sockfd, content, strlen(content), 0)) == -1)
+    {
+        perror("client: send");
+    }
+    else
+    {
+        printf("client: send: '%s': %d\n", content, numbytes);
+    }
+    printf("client: waiting for recving...\n");
     char buf[MAXDATASIZE];
     if ((numbytes = recv(sockfd, buf, MAXDATASIZE - 1, 0)) == -1)
     {
-        perror("recv");
+        perror("client: recv");
         exit(1);
     }
     buf[numbytes] = '\0';
-    printf("client: recv '%s': %d\n", buf, numbytes);
+    printf("client: recv:'%s'\nlen: %d\nend\n", buf, numbytes);
     close(sockfd);
     return 0;
 }

@@ -14,6 +14,7 @@
 
 #define PORT "3490"
 #define BACKLOG 10
+#define MAXDATASIZE 100
 
 void sigchld_handler(int s)
 {
@@ -101,7 +102,7 @@ int main(void)
         exit(1);
     }
 
-    printf("server: waiting for connections...\n\n");
+    printf("server: waiting for incoming connections...\n\n");
     socklen_t sin_size;
     struct sockaddr_storage their_addr;
     int new_fd;
@@ -118,9 +119,9 @@ int main(void)
         printf("server: got connection from '%s'-%d\n", s, get_in_port_ntohs((struct sockaddr *)(&their_addr)));
         if(!fork())
         {
-            printf("run in child process: %d\n", getpid());
+            printf("server: run in child process: %d, client socket: %d\n", getpid(), new_fd);
             close(sockfd);
-            char * content = "hello, world!";
+            char * content = "hello, this is xf!";
             int numbytes;
             if((numbytes = send(new_fd, content, strlen(content), 0)) == -1)
             {
@@ -128,9 +129,20 @@ int main(void)
             }
             else
             {
-                printf("send: '%s': %d\n", content, numbytes);
+                printf("server: send: '%s': %d\n", content, numbytes);
+            }
+            char buf[MAXDATASIZE];
+            if ((numbytes = recv(new_fd, buf, MAXDATASIZE - 1, 0)) == -1)
+            {
+                perror("server: recv");
+            }
+            if(numbytes > 0)
+            {
+                buf[numbytes] = '\0';
+                printf("server: recv: '%s': %d\n", buf, numbytes);
             }
             close(new_fd);
+            printf("server: client socket %d closed\n\n", new_fd);
             exit(0);
         }
         close(new_fd);
