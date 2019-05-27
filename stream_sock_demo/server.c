@@ -1,4 +1,4 @@
-#include "util.h"
+#include "../util.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,7 +12,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-#define PORT "3490"
+// #define PORT "3490"
 #define BACKLOG 10
 #define MAXDATASIZE 100
 
@@ -25,8 +25,14 @@ void sigchld_handler(int s)
     }
 }
 
-int main(void)
+int main(int argc, char const *argv[])
 {
+    if (argc < 2)
+    {
+        fprintf(stderr, "usage server port");
+        exit(1);
+    }
+    
     int sockfd;
     struct addrinfo hints, * serv_info;
     int rv;
@@ -36,7 +42,7 @@ int main(void)
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    if ((rv = getaddrinfo(NULL, PORT, &hints, &serv_info)) != 0)
+    if ((rv = getaddrinfo(NULL, argv[1], &hints, &serv_info)) != 0)
     {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
