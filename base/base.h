@@ -78,4 +78,20 @@ int nslookup(const char *hostname)
   freeaddrinfo(serv_info);
   return 0;
 }
+
+int sendall(int socket, char * buf, int count)
+{
+  int totalsent = 0;
+  int bytesleft = count;
+  int n;
+  while (totalsent < count)
+  {
+    n = send(socket, buf + totalsent, bytesleft, 0);
+    if (n == -1) break;
+    totalsent += n;
+    bytesleft -= n;
+  }
+  return n == -1 ? -1 : totalsent;
+}
+
 #endif

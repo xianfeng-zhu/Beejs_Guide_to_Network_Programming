@@ -135,8 +135,8 @@ int main(int argc, char const *argv[])
                     {
                         if (FD_ISSET(j, &master) == 0) continue;
                         if (j == server_sock || j == i) continue;
-                        int sent = send(j, buf, numbytes, 0);
-                        if (sent == -1)
+                        int result = sendall(j, buf, numbytes);
+                        if (result == -1)
                         {
                             perror("send");
                         }
