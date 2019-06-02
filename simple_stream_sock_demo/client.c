@@ -51,6 +51,7 @@ int main(int argc, char const *argv[])
             perror("client: connect");
             continue;
         }
+        print_sockaddr("client: selected ", (struct sockaddr *)p->ai_addr);
         break;
     }
     if (p == NULL)
@@ -58,21 +59,19 @@ int main(int argc, char const *argv[])
         fprintf(stderr, "client: failed to connect");
         return 2;
     }
-    inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr), s, sizeof s);
-    printf("client: selected '%s'-%d\n", s, get_in_port_ntohs(p->ai_addr));
     
     p = NULL;
     freeaddrinfo(serv_info);
 
     int numbytes;
     char * content = "hello, this is pipi!";
-    if((numbytes = send(sockfd, content, strlen(content), 0)) == -1)
+    if((numbytes = sendall(sockfd, content, strlen(content))) == -1)
     {
         perror("client: send");
     }
     else
     {
-        printf("client: send: '%s': %d\n", content, numbytes);
+        printf("client: sendall: len: %d, '%s'\n", numbytes, content);
     }
     printf("client: waiting for recving...\n");
     char buf[MAXDATASIZE];
@@ -82,7 +81,7 @@ int main(int argc, char const *argv[])
         exit(1);
     }
     buf[numbytes] = '\0';
-    printf("client: recv:'%s'\nlen: %d\nend\n", buf, numbytes);
+    printf("client: recv: len: %d, '%s'\n", numbytes, buf);
     close(sockfd);
     return 0;
 }

@@ -61,7 +61,7 @@ int main(int argc, char const *argv[])
             continue;
         }
         int yes = 1;
-        if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int) == -1))
+        if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
         {
             perror("setsocketopt");
             exit(1);
@@ -121,8 +121,9 @@ int main(int argc, char const *argv[])
             perror("accept");
             continue;
         }
-        inet_ntop(their_addr.ss_family, get_in_addr((struct sockaddr *)&their_addr), s, sizeof s);
-        printf("server: got connection from '%s'-%d\n", s, get_in_port_ntohs((struct sockaddr *)(&their_addr)));
+        // inet_ntop(their_addr.ss_family, get_in_addr((struct sockaddr *)&their_addr), s, sizeof s);
+        // printf("server: got connection from '%s'-%d\n", s, get_in_port_ntohs((struct sockaddr *)(&their_addr)));
+        print_sockaddr("server: got connection ", (struct sockaddr *)&their_addr);
         if (!fork())
         {
             printf("server: run in child process: %d, client socket: %d\n", getpid(), new_fd);

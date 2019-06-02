@@ -43,8 +43,14 @@ void print_sockaddr(char * msg, struct sockaddr *sa)
     addr = &(addrv6->sin6_addr);
   }
   char ipstr[INET6_ADDRSTRLEN];
-  inet_ntop(sa->sa_family, addr, ipstr, sizeof ipstr);
-  printf("%s%s: '%s'-%d\n", msg, ip_ver, ipstr, get_in_port_ntohs(sa));
+  memset(ipstr, 0, sizeof ipstr);
+  const char * printable = inet_ntop(sa->sa_family, addr, ipstr, sizeof ipstr);
+  if(printable == NULL)
+  {
+    perror("inet_ntop");
+    return;
+  }
+  printf("%s %s: '%s'-%d\n", msg, ip_ver, printable, get_in_port_ntohs(sa));
 }
 
 void print_addrinfo(struct addrinfo *p)
