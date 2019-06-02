@@ -32,9 +32,9 @@ int main(int argc, char const *argv[])
         fprintf(stderr, "usage server port");
         exit(1);
     }
-    
+
     int sockfd;
-    struct addrinfo hints, * serv_info;
+    struct addrinfo hints, *serv_info;
     int rv;
 
     memset(&hints, 0, sizeof hints);
@@ -49,7 +49,7 @@ int main(int argc, char const *argv[])
     }
     printf("server: getaddrinfo:\n");
     print_addrinfo(serv_info);
-    struct addrinfo * p = serv_info;
+    struct addrinfo *p = serv_info;
     char s[INET6_ADDRSTRLEN];
     for (; p != NULL; p = p->ai_next)
     {
@@ -60,13 +60,13 @@ int main(int argc, char const *argv[])
             perror("server: socket");
             continue;
         }
-        // int yes = 1;
-        // if (setsocketopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int) == -1))
-        // {
-        //     perror("setsocketopt");
-        //     exit(1);
-        // }
-        if(bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) 
+        int yes = 1;
+        if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int) == -1))
+        {
+            perror("setsocketopt");
+            exit(1);
+        }
+        if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1)
         {
             close(sockfd);
             perror("server: bind");
@@ -76,25 +76,25 @@ int main(int argc, char const *argv[])
         break;
     }
 
-    if(p == NULL)
+    if (p == NULL)
     {
         fprintf(stderr, "server: failed to bind\n");
         exit(1);
     }
     inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)(p->ai_addr)), s, sizeof s);
-    printf("server: bind on socket: %d, '%s'-%d\n", 
-        sockfd, 
-        s, 
-        get_in_port_ntohs(p->ai_addr));
-    if(listen(sockfd, BACKLOG) == -1)
+    printf("server: bind on socket: %d, '%s'-%d\n",
+           sockfd,
+           s,
+           get_in_port_ntohs(p->ai_addr));
+    if (listen(sockfd, BACKLOG) == -1)
     {
         perror("listen");
         exit(1);
     }
-    printf("server: listening on socket: %d, '%s'-%d\n", 
-        sockfd, 
-        s, 
-        get_in_port_ntohs(p->ai_addr));
+    printf("server: listening on socket: %d, '%s'-%d\n",
+           sockfd,
+           s,
+           get_in_port_ntohs(p->ai_addr));
     p = NULL;
     freeaddrinfo(serv_info);
 
@@ -102,7 +102,7 @@ int main(int argc, char const *argv[])
     sa.sa_handler = sigchld_handler;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
-    if(sigaction(SIGCHLD, &sa, NULL) == -1)
+    if (sigaction(SIGCHLD, &sa, NULL) == -1)
     {
         perror("sigaction");
         exit(1);
@@ -116,20 +116,20 @@ int main(int argc, char const *argv[])
     {
         sin_size = sizeof their_addr;
         new_fd = accept(sockfd, (struct sockaddr *)(&their_addr), &sin_size);
-        if(new_fd == -1)
+        if (new_fd == -1)
         {
             perror("accept");
             continue;
         }
         inet_ntop(their_addr.ss_family, get_in_addr((struct sockaddr *)&their_addr), s, sizeof s);
         printf("server: got connection from '%s'-%d\n", s, get_in_port_ntohs((struct sockaddr *)(&their_addr)));
-        if(!fork())
+        if (!fork())
         {
             printf("server: run in child process: %d, client socket: %d\n", getpid(), new_fd);
             close(sockfd);
-            char * content = "hello, this is xf!";
+            char *content = "hello, this is xf!";
             int numbytes;
-            if((numbytes = send(new_fd, content, strlen(content), 0)) == -1)
+            if ((numbytes = send(new_fd, content, strlen(content), 0)) == -1)
             {
                 perror("send");
             }
@@ -142,7 +142,7 @@ int main(int argc, char const *argv[])
             {
                 perror("server: recv");
             }
-            if(numbytes > 0)
+            if (numbytes > 0)
             {
                 buf[numbytes] = '\0';
                 printf("server: recv: '%s': %d\n", buf, numbytes);
