@@ -2,8 +2,8 @@
 echo "gcc compile all:"
 echo ""
 
-echo "==== non_blocking_io/selectserver.c:"
-gcc non_blocking_io/selectserver.c -o non_blocking_io/selectserver.out
+echo "==== simple_non_blocking_server/selectserver.c:"
+gcc simple_non_blocking_server/selectserver.c -o simple_non_blocking_server/selectserver.out
 code=$?
 echo "$code"
 if [[ $code -ne 0 ]]
